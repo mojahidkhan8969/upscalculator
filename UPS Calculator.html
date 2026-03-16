@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPS & Battery Power Calculator - Mojahid Tech Engineer</title>
+    <style>
+        :root {
+            --primary: #0056b3;
+            --secondary: #f4f7f6;
+            --border: #dee2e6;
+            --text: #333;
+            --brand: #0f172a;
+            --whatsapp: #25D366;
+            --youtube: #FF0000;
+            --ups: #6f42c1;
+            --battery: #fd7e14;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Branding Header */
+        .brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--brand);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .brand-logo span {
+            color: var(--primary);
+        }
+
+        /* Project & System Details Form */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: var(--secondary);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+
+        .system-settings {
+            background: #eef2f7;
+            border-left: 4px solid var(--primary);
+        }
+
+        .section-title {
+            grid-column: 1 / -1;
+            font-size: 16px;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .mode-select {
+            background-color: #fff;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+            padding: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .table-responsive {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid var(--border);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: var(--secondary);
+            color: #495057;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        input[type="number"] {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .btn-add:hover { background-color: #218838; }
+
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            padding: 6px 10px;
+        }
+
+        .btn-remove:hover { background-color: #c82333; }
+
+        .btn-print {
+            background-color: var(--brand);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-print:hover { background-color: #334155; }
+
+        .summary-dashboard {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 200px;
+            background: var(--secondary);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .summary-card.load-card { border-left-color: var(--primary); }
+        .summary-card.ups-card { border-left-color: var(--ups); }
+        .summary-card.battery-card { border-left-color: var(--battery); }
+
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        .summary-card .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .exact-value {
+            font-size: 13px;
+            color: #777;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .load-card .value { color: var(--primary); }
+        .ups-card .value { color: var(--ups); }
+        .battery-card .value { color: var(--battery); }
+        
+        .storage-cell {
+            font-weight: bold;
+            color: var(--primary);
+            background-color: #f8fcf8;
+            text-align: center;
+        }
+
+        /* Footer & Contact links styles */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .footer p { margin: 5px 0; }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+
+        .contact-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .contact-link.whatsapp { color: var(--whatsapp); }
+        .contact-link.youtube { color: var(--youtube); }
+
+        /* --- MOBILE RESPONSIVE STYLES --- */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            .brand-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .brand-logo { font-size: 24px; }
+            .details-grid { grid-template-columns: 1fr; }
+            
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr {
+                border: 1px solid var(--border);
+                margin-bottom: 15px;
+                border-radius: 8px;
+                background: white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                overflow: hidden;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 15px;
+                text-align: right;
+            }
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #555;
+                text-align: left;
+                flex: 1;
+                padding-right: 10px;
+            }
+            td:last-child {
+                border-bottom: 0;
+                background-color: #fff5f5;
+                justify-content: center;
+            }
+            td:last-child::before { display: none; }
+            input, select { width: 55%; }
+            .storage-cell { text-align: right; background-color: transparent; }
+            .btn-remove { width: 100%; padding: 12px; }
+            .btn-add { width: 100%; }
+            .summary-dashboard { flex-direction: column; }
+            .summary-card { text-align: center; }
+        }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+            
+            input, select {
+                border: none;
+                background: transparent;
+                padding: 0;
+                appearance: none;
+                -moz-appearance: none;
+                -webkit-appearance: none;
+                color: black;
+                font-weight: 500;
+            }
+
+            .summary-card {
+                border: 1px solid #ddd;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .storage-cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .contact-link.whatsapp, .contact-link.youtube { color: #333; text-decoration: none; }
+
+            table, thead, tbody, th, td, tr { display: table-cell; }
+            table { display: table; width: 100%; }
+            thead { display: table-header-group; }
+            tbody { display: table-row-group; }
+            tr { display: table-row; border: none; margin: 0; }
+            th, td { 
+                border: 1px solid #ddd; 
+                display: table-cell; 
+                text-align: left; 
+                padding: 8px;
+            }
+            td::before { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Branding Header -->
+    <div class="brand-header">
+        <div class="brand-logo">Mojahid Tech <span>Engineer</span></div>
+        <button type="button" class="btn btn-print no-print" onclick="window.print()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Print Report
+        </button>
+    </div>
+
+    <!-- Project Information -->
+    <div class="details-grid">
+        <h3 class="section-title">Project Details</h3>
+        <div class="form-group">
+            <label>Project Name</label>
+            <input type="text" placeholder="e.g. Server Room Power Backup">
+        </div>
+        <div class="form-group">
+            <label>Client / Contact</label>
+            <input type="text" placeholder="e.g. Acme Corp / John Doe">
+        </div>
+    </div>
+
+    <!-- Power & Battery Parameters -->
+    <div class="details-grid system-settings">
+        <h3 class="section-title">Global Power & Battery Settings</h3>
+        
+        <!-- TWO CALCULATION MODES -->
+        <div class="form-group full-width">
+            <label>What do you want to calculate?</label>
+            <select id="calcMode" class="mode-select" onchange="toggleMode()">
+                <option value="find_battery">Option 1: I know my Backup Time 👉 Find Battery Size</option>
+                <option value="find_time">Option 2: I know my Battery Size 👉 Find Backup Time</option>
+            </select>
+        </div>
+
+        <!-- Mode 1 Input: MINUTES -->
+        <div class="form-group" id="groupMinutes">
+            <label>Required Backup Time (Minutes)</label>
+            <input type="number" id="backupMinutes" value="60" min="1" step="1" oninput="calculateTotals()">
+        </div>
+
+        <!-- Mode 2 Input (Hidden by default) -->
+        <div class="form-group" id="groupAh" style="display: none;">
+            <label>Available Battery Capacity (Ah)</label>
+            <input type="number" id="manualAh" value="150" min="7" step="1" oninput="calculateTotals()">
+        </div>
+
+        <div class="form-group">
+            <label>Battery System Voltage (V)</label>
+            <select id="sysVoltage" onchange="calculateTotals()">
+                <option value="12">12V (Usually 1 Battery)</option>
+                <option value="24" selected>24V (Usually 2 Batteries)</option>
+                <option value="48">48V (Usually 4 Batteries)</option>
+                <option value="96">96V (Usually 8 Batteries)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label title="Extra capacity added to UPS to prevent overload">UPS Safety Margin (%)</label>
+            <input type="number" id="safetyMargin" value="20" min="0" max="100" oninput="calculateTotals()">
+        </div>
+        <div class="form-group">
+            <label title="Battery Depth of Discharge. Default 70% for lead acid safety.">Battery DoD (%)</label>
+            <input type="number" id="dod" value="70" min="10" max="100" oninput="calculateTotals()">
+        </div>
+    </div>
+
+    <!-- Equipment List Table -->
+    <div class="table-responsive">
+        <table id="calcTable">
+            <thead>
+                <tr>
+                    <th>Device / Remarks</th>
+                    <th>Qty</th>
+                    <th>Power Per Unit (Watts)</th>
+                    <th>Total Power (Watts)</th>
+                    <th class="no-print">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- JavaScript will inject the input rows here -->
+            </tbody>
+        </table>
+    </div>
+
+    <button type="button" class="btn btn-add no-print" onclick="addRow()">+ Add Device Item</button>
+
+    <!-- Summary Dashboard -->
+    <div class="summary-dashboard">
+        <div class="summary-card load-card">
+            <h3>Total System Load</h3>
+            <div class="value" id="totalWatts">0 W</div>
+        </div>
+        <div class="summary-card ups-card">
+            <h3 title="Calculated with Power Factor 0.8 + Safety Margin">Recommended UPS</h3>
+            <div class="value" id="totalKVA">0.00 kVA</div>
+        </div>
+        <div class="summary-card battery-card">
+            <h3 id="card3Title">Required Battery Bank</h3>
+            <div class="value" id="card3Value">0 Ah</div>
+            <div class="exact-value" id="card3SubText"></div>
+        </div>
+    </div>
+
+    <!-- Footer with Contacts -->
+    <div class="footer">
+        <p>Generated by <strong>Mojahid Tech Engineer</strong> - UPS & Battery Power Calculator</p>
+        <div class="footer-links">
+            <a href="https://wa.me/918825169485" target="_blank" class="contact-link whatsapp">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.643.854 5.111 2.373 7.218L.744 24l4.906-1.605A11.96 11.96 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zm0 21.996c-2.222 0-4.341-.577-6.22-1.666l-.446-.26-3.149 1.03.843-3.085-.286-.458A9.976 9.976 0 012.035 12.03c0-5.541 4.512-10.053 10.053-10.053 5.541 0 10.053 4.512 10.053 10.053 0 5.542-4.512 10.054-10.054 10.054zm5.542-7.585c-.304-.152-1.794-.886-2.071-.987-.278-.101-.481-.152-.684.152-.203.304-.784.987-.962 1.19-.177.203-.354.228-.658.076-.304-.152-1.282-.473-2.44-1.504-.9-.802-1.507-1.793-1.684-2.097-.177-.304-.019-.469.133-.62.137-.137.304-.354.456-.532.152-.177.203-.304.304-.506.101-.203.051-.38-.025-.532-.076-.152-.684-1.646-.937-2.253-.247-.595-.498-.515-.684-.524-.177-.009-.38-.009-.582-.009-.203 0-.532.076-.81.38-.278.304-1.064 1.038-1.064 2.532 0 1.494 1.089 2.937 1.241 3.14.152.203 2.14 3.266 5.185 4.578.723.312 1.287.498 1.726.638.726.23 1.387.198 1.906.12.582-.087 1.794-.734 2.047-1.443.253-.709.253-1.317.177-1.443-.076-.127-.278-.203-.582-.355z"/></svg>
+                +91 8825169485
+            </a>
+            <a href="https://www.youtube.com/@mojahidtechengineer" target="_blank" class="contact-link youtube">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                YouTube Channel
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Constants
+    const POWER_FACTOR = 0.8; 
+    const INVERTER_EFFICIENCY = 0.90; 
+    const STANDARD_BATTERIES =[7, 9, 12, 18, 26, 40, 65, 100, 120, 150, 200, 220, 250, 300];
+
+    // Show/Hide modes based on dropdown
+    function toggleMode() {
+        const mode = document.getElementById('calcMode').value;
+        if (mode === 'find_battery') {
+            document.getElementById('groupMinutes').style.display = 'flex';
+            document.getElementById('groupAh').style.display = 'none';
+        } else {
+            document.getElementById('groupMinutes').style.display = 'none';
+            document.getElementById('groupAh').style.display = 'flex';
+        }
+        calculateTotals();
+    }
+
+    // Round up to market battery size
+    function getStandardBatterySize(exactAh) {
+        if (exactAh <= 0) return 0;
+        for (let i = 0; i < STANDARD_BATTERIES.length; i++) {
+            if (STANDARD_BATTERIES[i] >= exactAh) {
+                return STANDARD_BATTERIES[i];
+            }
+        }
+        return Math.ceil(exactAh) + " (Multiple parallel banks required)";
+    }
+
+    // Creates the HTML for the dynamic row
+    function createRowHtml() {
+        return `
+            <tr>
+                <td data-label="Device / Remarks"><input type="text" placeholder="e.g. CCTV NVR, Switches, Cameras"></td>
+                <td data-label="Qty"><input type="number" value="1" min="1" class="qty" oninput="calculateTotals()"></td>
+                <td data-label="Power Per Unit (W)"><input type="number" value="15" min="1" class="unit-watts" oninput="calculateTotals()"></td>
+                <td data-label="Total Power (W)" class="storage-cell"><span class="row-total">15</span> W</td>
+                <td class="no-print"><button type="button" class="btn btn-remove" onclick="removeRow(this)">Remove</button></td>
+            </tr>
+        `;
+    }
+
+    // Adds the row to the table
+    function addRow() {
+        const tbody = document.getElementById('tableBody');
+        tbody.insertAdjacentHTML('beforeend', createRowHtml());
+        calculateTotals();
+    }
+
+    // Removes the specific row
+    function removeRow(button) {
+        button.closest('tr').remove();
+        calculateTotals();
+    }
+
+    // The Master Calculation Engine
+    function calculateTotals() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        let grandTotalWatts = 0;
+
+        // 1. Calculate each load item
+        rows.forEach(row => {
+            const qty = parseFloat(row.querySelector('.qty').value) || 0;
+            const watts = parseFloat(row.querySelector('.unit-watts').value) || 0;
+            const rowTotal = qty * watts;
+            
+            if(row.querySelector('.row-total')) {
+                row.querySelector('.row-total').innerText = rowTotal.toFixed(0);
+            }
+            grandTotalWatts += rowTotal;
+        });
+
+        // 2. Fetch parameters from inputs
+        const mode = document.getElementById('calcMode').value;
+        
+        // Grab minutes and convert to hours for the engineering formula
+        const backupMinutes = parseFloat(document.getElementById('backupMinutes').value) || 0;
+        const backupHours = backupMinutes / 60; 
+        
+        const manualAh = parseFloat(document.getElementById('manualAh').value) || 0;
+        const sysVoltage = parseFloat(document.getElementById('sysVoltage').value) || 12;
+        const safetyMarginPercent = parseFloat(document.getElementById('safetyMargin').value) || 0;
+        const dodPercent = parseFloat(document.getElementById('dod').value) || 70;
+
+        // 3. Calculate Required UPS Size
+        const marginMultiplier = 1 + (safetyMarginPercent / 100);
+        let totalVA = grandTotalWatts / POWER_FACTOR;
+        let requiredKVA = (totalVA * marginMultiplier) / 1000;
+        
+        // Prevent NaN on empty fields
+        if(!isFinite(requiredKVA)) requiredKVA = 0;
+
+        // Common Factor calculations
+        const dodFactor = dodPercent / 100;
+
+        // Set Load & UPS Text
+        document.getElementById('totalWatts').innerText = grandTotalWatts.toFixed(0) + " W";
+        document.getElementById('totalKVA').innerText = requiredKVA.toFixed(2) + " kVA";
+
+        // 4. Branch based on Calculator Mode
+        if (mode === 'find_battery') {
+            
+            // Formula: Ah = (Watts * Hours) / (Voltage * Efficiency * DoD)
+            let exactAh = 0;
+            if(sysVoltage > 0 && dodFactor > 0) {
+                 exactAh = (grandTotalWatts * backupHours) / (sysVoltage * INVERTER_EFFICIENCY * dodFactor);
+            }
+            if(!isFinite(exactAh)) exactAh = 0;
+            
+            let standardAh = getStandardBatterySize(exactAh);
+
+            document.getElementById('card3Title').innerText = "Recommended Market Battery";
+            
+            if (exactAh > 0) {
+                document.getElementById('card3Value').innerText = standardAh + " Ah";
+                document.getElementById('card3SubText').innerText = `Calculated exact match was ${Math.ceil(exactAh)} Ah. Rounded up to market standard.`;
+            } else {
+                document.getElementById('card3Value').innerText = "0 Ah";
+                document.getElementById('card3SubText').innerText = "";
+            }
+
+        } else if (mode === 'find_time') {
+            
+            // Formula: Hours = (Ah * Voltage * Efficiency * DoD) / Watts
+            let estMinutes = 0;
+            if (grandTotalWatts > 0) {
+                let estHours = (manualAh * sysVoltage * INVERTER_EFFICIENCY * dodFactor) / grandTotalWatts;
+                estMinutes = estHours * 60; // Convert hours back to minutes
+            }
+
+            document.getElementById('card3Title').innerText = "Estimated Backup Time";
+            document.getElementById('card3Value').innerText = estMinutes.toFixed(0) + " Minutes";
+            document.getElementById('card3SubText').innerText = `Based on a ${manualAh} Ah Battery running a ${grandTotalWatts}W load safely.`;
+        }
+    }
+
+    // Force the first row to add as soon as the HTML Document structure loads!
+    document.addEventListener("DOMContentLoaded", function() {
+        addRow();
+    });
+</script>
+
+</body>
+</html>
